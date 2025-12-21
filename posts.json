@@ -1,0 +1,214 @@
+[
+    {
+        "id": 3,
+        "title": "THE TIGER AND THE FOX",
+        "content": "A tiger chased a fox. The fox ran until he reached a cliff, then calmly turned and waited.\u2028The tiger skidded to a stop. \u201cWhy aren\u2019t you afraid?\u201d\u2028The fox smiled. \u201cLook behind me.\u201d\u2028Painted on the cliff was an enormous picture of a tiger. The tiger saw it and fled in terror.\u2028The fox walked away slowly, tail high.\u2028Sometimes the shadow of courage is all you need.",
+        "author": "Killer Frost",
+        "date": "2025-12-12",
+        "likes": 5,
+        "shares": 0,
+        "comments": []
+    },
+    {
+        "id": 4,
+        "title": "THE ELEPHANT AND THE ROPE",
+        "content": "A man saw a mighty elephant tied to a tiny stake with a thin rope.\u2028\u201cWhy doesn\u2019t it break free?\u201d he asked the trainer.\u2028\u201cWhen it was a baby, that rope was enough to hold it. It tried, failed, and gave up. Now it never tries again.\u201d\u2028Most chains are only in the mind.",
+        "author": "Killer Frost",
+        "date": "2025-12-12",
+        "likes": 8,
+        "shares": 0,
+        "comments": []
+    },
+    {
+        "id": 6,
+        "title": "The stages of life ",
+        "content": "Chase your dream and invest while you\u2019re still young, so you don\u2019t regret when you get older ",
+        "author": "Nuella Sonite",
+        "date": "2025-12-12",
+        "likes": 54,
+        "shares": 6,
+        "comments": [
+            {
+                "id": 1,
+                "name": "Chidimma",
+                "text": "Yeah you are right",
+                "likes": 0,
+                "replies": []
+            }
+        ]
+    },
+    {
+        "id": 6,
+        "title": "The Broken Mug",
+        "content": "When Mia\u2019s favorite mug slipped from her hands and shattered, she sat on the floor feeling frustrated. Her grandmother quietly joined her, picking up the pieces.\r\n\u201cAnything can break,\u201d she said, \u201cbut not everything can be fixed alone.\u201d\r\nTogether, they glued the mug back.\r\n\r\nLesson: Healing isn\u2019t about perfection; it\u2019s about who stays to help you rebuild.",
+        "author": "E.O",
+        "date": "2025-12-12",
+        "likes": 0,
+        "shares": 0,
+        "comments": []
+    },
+    {
+        "id": 7,
+        "title": "THE UNCONTENT STONE CUTTER",
+        "content": "A poor stonecutter watched a rich merchant pass by and wished, \u201cI want to be a merchant.\u201d\u2028A spirit heard him and made him one.\u2028Then he saw a prince and wished to be a prince. Granted.\u2028Then the sun outshone the prince, so he became the sun.\u2028But a cloud blocked the sun, so he became a cloud.\u2028Rain fell from the cloud, but a mighty mountain stood unmoved, so he became the mountain.\u2028One day he felt a sharp pain, a stonecutter was chiseling him away.\u2028He whispered, \u201cLet me be a stonecutter again.\u201d\u2028And finally he was content at last.",
+        "author": "Killer Frost",
+        "date": "2025-12-15",
+        "likes": 2,
+        "shares": 1,
+        "comments": [
+            {
+                "name": "Mike",
+                "text": "He's wants to have all at the same time and so he got nothing",
+                "id": 1,
+                "likes": 2,
+                "replies": [
+                    {
+                        "name": "Jude",
+                        "text": "You are right bro",
+                        "id": 1,
+                        "likes": 0,
+                        "replies": []
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": 8,
+        "title": "THE FROG AND THE OX",
+        "content": "A frog saw a mighty ox and envied his size.\u2028He puffed himself up: \u201cAm I as big yet?\u201d\u2028His children said no.\u2028He puffed harder: \u201cNow?\u201d\u2028Still no.\u2028He swelled and swelled until he burst.\u2028Trying to be what you are not ends only one way.",
+        "author": "Killer Frost",
+        "date": "2025-12-15",
+        "likes": 3,
+        "shares": 0,
+        "comments": []
+    },
+    {
+        "id": 9,
+        "title": "THE SATYR AND THE TRAVELER",
+        "content": "A satyr (half-man, half-goat) invited a freezing traveler into his home.\u2028The man blew on his cold hands to warm them.\u2028The satyr asked why. \u201cTo warm them.\u201d\u2028Later, the man blew on his hot soup.\u2028\u201cWhy now?\u201d asked the satyr.\u2028\u201cTo cool it.\u201d\u2028The satyr threw him out: \u201cGet out! I want no friend who blows hot and cold with the same mouth.\u201d\u2028Beware the person who says one thing today and the opposite tomorrow.",
+        "author": "Killer Frost",
+        "date": "2025-12-15",
+        "likes": 3,
+        "shares": 0,
+        "comments": []
+    },
+    {
+        "id": 10,
+        "title": "THE WISE KING",
+        "content": "A wise king once asked his wise men for a gift that would make the happy sad and the sad happy.\u2028They forged a ring engraved with four words:\u2028\u201cThis too shall pass.\u201d\u2028He wore it the rest of his life.",
+        "author": "Killer Frost",
+        "date": "2025-12-16",
+        "likes": 1,
+        "shares": 0,
+        "comments": [
+            {
+                "id": 1,
+                "name": "Nnenna",
+                "text": "Yeah that it",
+                "likes": 1,
+                "replies": []
+            }
+        ]
+    },
+    {
+        "id": 12,
+        "title": "CONFUCIUS AND THE EMPTY CUP",
+        "content": "Confucius said a full cup cannot hold more tea. Wisdom begins with humility and openness to learn.",
+        "author": "Killer Frost",
+        "date": "2025-12-16",
+        "likes": 2,
+        "shares": 2,
+        "comments": [
+            {
+                "id": 1,
+                "name": "Chidimma",
+                "text": "Omo my own full cup fit hold tea oh hahahah",
+                "likes": 19,
+                "replies": [
+                    {
+                        "id": 2,
+                        "name": "Rin",
+                        "text": "You no get sense oh",
+                        "likes": 0,
+                        "replies": []
+                    }
+                ]
+            },
+            {
+                "id": 3,
+                "name": "Uremma",
+                "text": "Nice one",
+                "likes": 2,
+                "replies": [
+                    {
+                        "id": 1,
+                        "name": "Folashade",
+                        "text": "Yeah",
+                        "likes": 1,
+                        "replies": []
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": 13,
+        "title": "FORTUNE OF THE FARMER",
+        "content": "A farmer\u2019s horse ran away. Neighbors said it was bad luck. Later, the horse returned with more horses. Wisdom is patience fortune shifts like the wind.",
+        "author": "Killer Frost",
+        "date": "2025-12-19",
+        "likes": 2,
+        "shares": 0,
+        "comments": []
+    },
+    {
+        "id": 14,
+        "title": "FERMI - DIRAC DISTRIBUTION",
+        "content": "Imagine electrons as ultimate introverts at a party.\r\nUnlike chill classical particles that pile up anywhere, electrons (fermions) follow a strict \u201cno two in the exact same state\u201d rule, no sharing seats or energy levels.\r\nThe Fermi-Dirac distribution describes how these picky particles occupy energies: packing low ones at cold temps, spreading out when hot.\r\nIt\u2019s the quantum snobbery behind metal conductivity, phone semiconductors, and even white dwarf stars!",
+        "author": "Killer Frost",
+        "date": "2025-12-20",
+        "image": "/static/uploads/71fbe90e-a232-4f7e-addd-34a28b9cbc9d.png",
+        "likes": 1,
+        "shares": 0,
+        "comments": []
+    },
+    {
+        "id": 16,
+        "title": "THE ORIGIN OF SNOWMAN",
+        "content": "Building snowmen dates back centuries in snowy regions. The earliest known image is from a 1380 medieval manuscript.\r\nIn Europe, people made them for fun during winters, even Michelangelo sculpted one in 1494!\r\nThe classic version with carrot nose, coal eyes, scarf, and top hat became popular in the 19th century.\r\nIt exploded in fame with the 1950 song \u201cFrosty the Snowman,\u201d making him a winter icon. \u2744\ufe0f",
+        "author": "Killer Frost",
+        "date": "2025-12-20",
+        "image": "/static/uploads/0179ef6a-d66c-4500-9b2c-a46851441702.jpeg",
+        "likes": 2,
+        "shares": 0,
+        "comments": []
+    },
+    {
+        "id": 17,
+        "title": "THE ORIGIN OF SANTA CLAUS",
+        "content": "In the 4th century, a kind bishop named Nicholas lived in Myra (modern-day Turkey). Famous for secret generosity, he once heard of a poor family with three daughters who couldn\u2019t afford dowries.\r\nTo save them anonymously, Nicholas tossed three bags of gold through their window on separate nights one famously landing in a stocking by the fire.\r\nAfter his death, stories of his kindness spread. In the Netherlands, he became Sinterklaas, a gift-giver to children. Dutch settlers brought the tradition to America, where he evolved into our jolly Santa Claus.\r\nAt its core, Santa began with one man\u2019s quiet acts of compassion. \ud83c\udf84",
+        "author": "Killer Frost",
+        "date": "2025-12-20",
+        "image": "/static/uploads/2813e61e-b29f-47f4-9584-dc10d9882285.jpeg",
+        "likes": 2,
+        "shares": 0,
+        "comments": [
+            {
+                "id": 1,
+                "name": "Ekene",
+                "text": "Wow that's interesting",
+                "likes": 1,
+                "replies": [
+                    {
+                        "id": 1,
+                        "name": "Chioma",
+                        "text": "Exactly",
+                        "likes": 1,
+                        "replies": []
+                    }
+                ]
+            }
+        ]
+    }
+]
