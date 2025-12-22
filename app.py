@@ -201,7 +201,7 @@ def home():
     <body>
         <div style="text-align:center; margin:60px 0 40px; display:flex; justify-content:center; align-items:center; gap:60px; flex-wrap:wrap;">
             <img src="https://i.pinimg.com/originals/83/be/51/83be51d616bcc58a6829d81828be77a5.gif" alt="Twinkling Christmas Tree" style="height:80px; width:auto;">
-            <h1 style="margin:0; font-size:50px; color:#00ffff; text-shadow:0 0 30px #00ffff;">FrostBlog</h1>
+            <h1 style="margin:0; font-size:50px; color:#00ffff; text-shadow:0 0 30px #00ffff;">WinterBlog</h1>
             <img src="https://i.pinimg.com/originals/83/be/51/83be51d616bcc58a6829d81828be77a5.gif" alt="Twinkling Christmas Tree" style="height:80px; width:auto;">
         </div>
 
@@ -891,5 +891,6 @@ def admin_logout():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
