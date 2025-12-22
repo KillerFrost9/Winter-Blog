@@ -174,7 +174,7 @@ def home():
     <html>
     <head>
         <meta charset="utf-8">
-        <title>FrostBlog</title>
+        <title>WinterBlog</title>
         <style>
             body {font-family:Arial; background:#0a0e17; color:#fff; margin:0; padding:20px;}
             h1 {text-align:center; color:#00ffff; text-shadow:0 0 30px #00ffff; font-size:50px;}
@@ -891,4 +891,5 @@ def admin_logout():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
