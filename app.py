@@ -51,7 +51,7 @@ if os.path.exists(FILE):
 else:
     posts = [{
         "id": 1,
-        "title": "FrostBlog — Pure Winter",
+        "title": "WinterBlog — Pure Winter",
         "content": "Only beautiful blue snowflakes falling — clean, and now everything works perfectly!",
         "author": "Frost King",
         "date": "2025-12-19",
@@ -891,4 +891,5 @@ def admin_logout():
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
+
     app.run(host="0.0.0.0", port=port)
