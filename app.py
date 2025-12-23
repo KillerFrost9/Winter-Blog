@@ -24,31 +24,49 @@ next_reply_id = 1
 
 if os.path.exists(FILE):
     posts = json.load(open(FILE, encoding="utf-8"))
+
+    # Collect all existing reply IDs to find the next available
+    all_reply_ids = set()
+
+    def collect_and_assign_ids(replies):
+        global next_reply_id
+        for r in replies:
+            if "id" in r:
+                all_reply_ids.add(r["id"])
+            else:
+                r["id"] = next_reply_id
+                all_reply_ids.add(next_reply_id)
+                next_reply_id += 1
+            r.setdefault("likes", 0)
+            r.setdefault("replies", [])
+            collect_and_assign_ids(r["replies"])
+
     for p in posts:
         p.setdefault("likes", 0)
         p.setdefault("shares", 0)
         p.setdefault("comments", [])
 
         for c in p["comments"]:
-            c.setdefault("id", len([x for x in p["comments"] if "id" in x and x["id"] < c.get("id", 0)]) + 1)
+            c.setdefault("id", len([x for x in p["comments"] if "id" in x]) + 1)
             c.setdefault("likes", 0)
             c.setdefault("replies", [])
+            collect_and_assign_ids(c["replies"])
 
+    # Set next_reply_id to one above the highest existing
+    if all_reply_ids:
+        next_reply_id = max(all_reply_ids) + 1
 
-            def assign_ids(replies):
-                global next_reply_id
-                for r in replies:
-                    if "id" not in r:
-                        r["id"] = next_reply_id
-                        next_reply_id += 1
-                    r.setdefault("likes", 0)
-                    r.setdefault("replies", [])
-                    assign_ids(r["replies"])
-
-
-            assign_ids(c["replies"])
 else:
     posts = [{
+        "id": 1,
+        "title": "WinterBlog — Pure Winter",
+        "content": "Only beautiful blue snowflakes falling — clean, and now everything works perfectly!",
+        "author": "Frost King",
+        "date": "2025-12-19",
+        "likes": 0,
+        "shares": 0,
+        "comments": []
+    }]
         "id": 1,
         "title": "WinterBlog — Pure Winter",
         "content": "Only beautiful blue snowflakes falling — clean, and now everything works perfectly!",
@@ -220,9 +238,13 @@ def home():
         {% for p in posts[::-1] %}
         <div class="post" id="post{{p.id}}">
             {% set current_author = request.cookies.get('author_' + p.id|string) or p.author %}
-            {% if is_admin() or current_author == p.author %}
-                <a href="/edit/{{p.id}}"><button class="edit-btn">Edit</button></a>
-            {% endif %}
+{% if is_admin() or current_author == p.author %}
+    <a href="/edit/{{p.id}}"><button class="edit-btn">Edit</button></a>
+    
+    <form method="post" action="/delete/{{p.id}}" onsubmit="return confirm('Delete this post forever?');" style="display:inline; margin-left:15px;">
+        <button type="submit" class="action-btn delete-btn" style="padding:8px 14px; font-size:13px; background:#990000;">Delete Post</button>
+    </form>
+{% endif %}
 
             <h2 class="post-title">{{p.title}}</h2>
             <div class="post-meta">{{p.author}} — {{p.date}}</div>
@@ -247,11 +269,6 @@ def home():
                     📤 Share {{p.shares}}
                 </button>
 
-                {% if is_admin() or current_author == p.author %}
-                <form method="post" action="/delete/{{p.id}}" onsubmit="return confirm('Delete forever?');" style="margin:0; display:inline;">
-                    <button type="submit" class="action-btn delete-btn">Delete</button>
-                </form>
-                {% endif %}
             </div>
 
             <div class="comment-section" id="c{{p.id}}">
@@ -268,7 +285,7 @@ def home():
                                     {{r.text|replace('\n','<br>')|safe}}
                                 </div>
                             </div>
-                            {% if is_admin() or r.name == request.form.get('name') or request.cookies.get('comment_author_' + r.id|string) == r.name %}
+                           {% if is_admin() or request.cookies.get('reply_author_' + r.id|string) == r.name %}
                             <form method="post" action="/delete-reply/{{post_id}}/{{r.id}}" onsubmit="return confirm('Delete this reply?');">
                                 <button type="submit" class="delete-btn-small">🗑️ Delete</button>
                             </form>
@@ -549,6 +566,74 @@ def like_reply(post_id, reply_id):
                     return result
     return jsonify({"likes": 0})
 
+@app.route("/nested-reply/<int:post_id>/<int:parent_reply_id>", methods=["POST"])
+def nested_reply(post_id, parent_reply_id):
+    global next_reply_id
+
+    def find_and_add(replies):
+        for r in replies:
+            if r["id"] == parent_reply_id:
+                new_reply = {
+                    "id": next_reply_id,
+                    "name": request.form["name"],
+                    "text": request.form["reply"],
+                    "likes": 0,
+                    "replies": []
+                }
+                global next_reply_id
+                next_reply_id += 1
+                r.setdefault("replies", []).insert(0, new_reply)
+                save()
+
+                html = render_template_string("""
+                <div class="reply-item" id="reply-{{post_id}}-{{id}}">
+                    <div style="display:flex; justify-content:space-between; align-items:start;">
+                        <div>
+                            <strong>{{name}}:</strong>
+                            <div style="margin-top:6px; font-size:15px;">
+                                {{text|replace('\n','<br>')|safe}}
+                            </div>
+                        </div>
+                        {% if is_admin() or request.cookies.get('reply_author_' + id|string) == name %}
+                        <form method="post" action="/delete-reply/{{post_id}}/{{id}}" onsubmit="return confirm('Delete this reply?');">
+                            <button type="submit" class="delete-btn-small">🗑️ Delete</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                        <button onclick="likeReply(event, {{post_id}}, {{id}})">👍 <span id="reply-likes-{{post_id}}-{{id}}">0</span></button>
+                        <button onclick="toggleReply('nr{{post_id}}_{{parent_id}}_{{id}}')">💬 Reply</button>
+                    </div>
+                    <div class="nested-reply"></div>
+                    <div id="nr{{post_id}}_{{parent_id}}_{{id}}" style="display:none; margin-top:12px;">
+                        <form onsubmit="submitNestedReply(event, {{post_id}}, {{id}})">
+                            <input name="name" placeholder="Your name" required>
+                            <textarea name="reply" rows="3" placeholder="Write a reply..." required></textarea>
+                            <button type="submit">Reply</button>
+                        </form>
+                    </div>
+                </div>
+                """, post_id=post_id, parent_id=parent_reply_id, id=new_reply["id"], name=new_reply["name"], text=new_reply["text"])
+
+                resp = make_response(jsonify({"html": html}))
+                resp.set_cookie(f"reply_author_{new_reply['id']}", new_reply["name"], max_age=60*60*24*365*10)
+                return resp
+
+            if r.get("replies"):
+                result = find_and_add(r["replies"])
+                if result:
+                    return result
+        return None
+
+    for p in posts:
+        if p["id"] == post_id:
+            for c in p["comments"]:
+                result = find_and_add(c.get("replies", []))
+                if result:
+                    return result
+
+    return jsonify({"html": ""})
+
 
 @app.route("/comment-count/<int:post_id>")
 def comment_count(post_id):
@@ -603,19 +688,22 @@ def comment(post_id):
 
 @app.route("/reply/<int:post_id>/<int:comment_id>", methods=["POST"])
 def reply(post_id, comment_id):
+    global next_reply_id
     for p in posts:
         if p["id"] == post_id:
             for c in p["comments"]:
                 if c["id"] == comment_id:
                     new_reply = {
-                        "id": len(c.get("replies", [])) + 1,
+                        "id": next_reply_id,
                         "name": request.form["name"],
                         "text": request.form["reply"],
                         "likes": 0,
                         "replies": []
                     }
+                    next_reply_id += 1
                     c.setdefault("replies", []).insert(0, new_reply)
                     save()
+
                     html = render_template_string("""
                     <div class="reply-item" id="reply-{{post_id}}-{{id}}">
                         <div style="display:flex; justify-content:space-between; align-items:start;">
@@ -625,7 +713,7 @@ def reply(post_id, comment_id):
                                     {{text|replace('\n','<br>')|safe}}
                                 </div>
                             </div>
-                            {% if is_admin() or name == request.form.get('name') %}
+                            {% if is_admin() or request.cookies.get('reply_author_' + id|string) == name %}
                             <form method="post" action="/delete-reply/{{post_id}}/{{id}}" onsubmit="return confirm('Delete this reply?');">
                                 <button type="submit" class="delete-btn-small">🗑️ Delete</button>
                             </form>
@@ -644,10 +732,12 @@ def reply(post_id, comment_id):
                             </form>
                         </div>
                     </div>
-                    """, post_id=post_id, parent_id=comment_id, id=new_reply["id"], name=new_reply["name"], text=new_reply["text"], is_admin=is_admin)
-                    return jsonify({"html": html})
-    return jsonify({"html": ""})
+                    """, post_id=post_id, parent_id=comment_id, id=new_reply["id"], name=new_reply["name"], text=new_reply["text"])
 
+                    resp = make_response(jsonify({"html": html}))
+                    resp.set_cookie(f"reply_author_{new_reply['id']}", new_reply["name"], max_age=60*60*24*365*10)
+                    return resp
+    return jsonify({"html": ""})
 
 @app.route("/new", methods=["GET", "POST"])
 def new():
@@ -850,15 +940,17 @@ def delete_comment(post_id, comment_id):
 
 @app.route("/delete-reply/<int:post_id>/<int:reply_id>", methods=["POST"])
 def delete_reply(post_id, reply_id):
-    if not is_admin():
-        return "Unauthorized", 403  # For simplicity, only admin can delete replies across nests
-        # You can extend this with cookies if needed
+    author_cookie = request.cookies.get(f"reply_author_{reply_id}")
 
     def remove_reply(replies):
         for i, r in enumerate(replies):
             if r["id"] == reply_id:
-                del replies[i]
-                return True
+                # Allow if admin OR the person who wrote it (name matches cookie)
+                if is_admin() or (author_cookie and r["name"] == author_cookie):
+                    del replies[i]
+                    save()
+                    return True
+                return False  # Unauthorized
             if r.get("replies"):
                 if remove_reply(r["replies"]):
                     return True
@@ -868,10 +960,8 @@ def delete_reply(post_id, reply_id):
         if p["id"] == post_id:
             for c in p["comments"]:
                 if remove_reply(c.get("replies", [])):
-                    save()
                     return redirect("/")
-    return redirect("/")
-
+    return "Unauthorized or reply not found", 403
 
 @app.route("/share/<int:post_id>", methods=["POST"])
 def share(post_id):
@@ -891,6 +981,7 @@ def admin_logout():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
 
