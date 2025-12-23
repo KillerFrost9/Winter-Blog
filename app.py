@@ -285,7 +285,7 @@ def home():
                                     {{r.text|replace('\n','<br>')|safe}}
                                 </div>
                             </div>
-                           {% if is_admin() or request.cookies.get('reply_author_' + r.id|string) == r.name %}
+                        {% if is_admin() or request.cookies.get('reply_author_' + r.id|string) == r.name %}
                             <form method="post" action="/delete-reply/{{post_id}}/{{r.id}}" onsubmit="return confirm('Delete this reply?');">
                                 <button type="submit" class="delete-btn-small">🗑️ Delete</button>
                             </form>
@@ -981,6 +981,7 @@ def admin_logout():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
 
