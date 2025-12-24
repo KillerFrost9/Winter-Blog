@@ -571,7 +571,6 @@ def nested_reply(post_id, parent_reply_id):
                     "likes": 0,
                     "replies": []
                 }
-                global next_reply_id
                 next_reply_id += 1
                 r.setdefault("replies", []).insert(0, new_reply)
                 save()
@@ -972,3 +971,4 @@ def admin_logout():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
