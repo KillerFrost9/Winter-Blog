@@ -67,15 +67,6 @@ else:
         "shares": 0,
         "comments": []
     }]
-        "id": 1,
-        "title": "WinterBlog — Pure Winter",
-        "content": "Only beautiful blue snowflakes falling — clean, and now everything works perfectly!",
-        "author": "Frost King",
-        "date": "2025-12-19",
-        "likes": 0,
-        "shares": 0,
-        "comments": []
-    }]
 
 
 def save():
@@ -845,7 +836,7 @@ def edit(post_id):
                 return "<h2 style='color:red;text-align:center;'>Invalid file type! Only images allowed.</h2><a href='/edit/{{post.id}}'>← Try again</a>".replace(
                     '{{post.id}}', str(post_id))
             elif file.content_length > 5 * 1024 * 1024:
-                return "<h2 style='color:red;text-align:center;'>File too large! Max 5MB allowed.</h2><a href='/edit/{{post.id}}'>← Try again</a>".replace(
+                return "<h2 style='color:red;text-align:center;'>File too large! Max 5MB allowed.</h2><a href='/edit/{{post.id}}'>← Try Again</a>".replace(
                     '{{post.id}}', str(post_id))
             else:
                 filename = str(uuid.uuid4()) + '.' + secure_filename(file.filename).rsplit('.', 1)[1].lower()
@@ -981,9 +972,3 @@ def admin_logout():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-
-
-
-
-
-
