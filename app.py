@@ -426,47 +426,41 @@ def home():
                 const name = formData.get('name');
                 const resp = await fetch("/comment/" + postId, { method: "POST", body: formData });
                 const data = await resp.json();
-                document.getElementById("comments-list-" + postId).insertAdjacentHTML('beforeend', data.html);
+                const list = document.getElementById("comments-list-" + postId);
+                list.insertAdjacentHTML('afterbegin', data.html);  // Insert at top
                 form.reset();
                 updateCommentCounts(postId);
-                // Remember author for delete permission
                 if (data.comment_id) {
                     document.cookie = `comment_author_${data.comment_id}=${encodeURIComponent(name)}; path=/; max-age=315360000`;
                 }
             }
 
-          async function submitReply(event, postId, commentId) {
-    event.preventDefault();
-    const form = event.target;
-    const formData = new FormData(form);
-    
-    const resp = await fetch("/reply/" + postId + "/" + commentId, { method: "POST", body: formData });
-    const data = await resp.json();
-    
-    // Find the replies container inside this specific comment
-    const commentDiv = document.getElementById("comment-" + postId + "-" + commentId);
-    let repliesContainer = commentDiv.querySelector(".replies-container");
-    
-    // If it doesn't exist yet, create it
-    if (!repliesContainer) {
-        repliesContainer = document.createElement("div");
-        repliesContainer.className = "replies-container";
-        // Insert it before the reply form
-        const replyFormDiv = commentDiv.querySelector("div[id^='r" + postId + "_" + commentId + "']");
-        commentDiv.insertBefore(repliesContainer, replyFormDiv);
-    }
-    
-    repliesContainer.insertAdjacentHTML('beforeend', data.html);
-    
-    // Clear the form
-    form.reset();
-    
-    // Hide the reply box after sending
-    form.parentElement.style.display = 'none';
-    
-    // Update total comment count
-    updateCommentCounts(postId);
-}
+            async function submitReply(event, postId, commentId) {
+                event.preventDefault();
+                const form = event.target;
+                const formData = new FormData(form);
+                
+                const resp = await fetch("/reply/" + postId + "/" + commentId, { method: "POST", body: formData });
+                const data = await resp.json();
+                
+                const commentDiv = document.getElementById("comment-" + postId + "-" + commentId);
+                let repliesContainer = commentDiv.querySelector(".replies-container");
+                
+                if (!repliesContainer) {
+                    repliesContainer = document.createElement("div");
+                    repliesContainer.className = "replies-container";
+                    const replyFormDiv = commentDiv.querySelector("div[id^='r" + postId + "_" + commentId + "']");
+                    commentDiv.insertBefore(repliesContainer, replyFormDiv);
+                }
+                
+                repliesContainer.insertAdjacentHTML('beforeend', data.html);
+                
+                form.reset();
+                form.parentElement.style.display = 'none';
+                
+                updateCommentCounts(postId);
+            }
+
             async function submitNestedReply(event, postId, parentReplyId) {
                 event.preventDefault();
                 const form = event.target;
@@ -480,18 +474,15 @@ def home():
                 if (!nested) {
                     nested = document.createElement("div");
                     nested.className = "nested-reply";
-                    parent.appendChild(nested);
+                    const replyBtnLine = parent.querySelector("div[style*='display:flex; gap:10px']");
+                    parent.insertBefore(nested, replyBtnLine.nextSibling);
                 }
                 
                 nested.insertAdjacentHTML('beforeend', data.html);
                 
-                // Clear the name and text fields
                 form.reset();
-                
-                // BONUS: Hide the reply form after sending
                 form.parentElement.style.display = 'none';
                 
-                // Update the comment count badge
                 updateCommentCounts(postId);
             }
 
@@ -601,7 +592,7 @@ def nested_reply(post_id, parent_reply_id):
                     "replies": []
                 }
                 next_reply_id += 1
-                r.setdefault("replies", []).append (new_reply)
+                r.setdefault("replies", []).append(new_reply)
                 save()
 
                 html = render_template_string("""
@@ -621,10 +612,10 @@ def nested_reply(post_id, parent_reply_id):
                     </div>
                     <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
                         <button onclick="likeReply(event, {{post_id}}, {{id}})">👍 <span id="reply-likes-{{post_id}}-{{id}}">0</span></button>
-                        <button onclick="toggleReply('nr{{post_id}}_{{parent_id}}_{{id}}')">💬 Reply</button>
+                        <button onclick="toggleReply('nr{{post_id}}_{{id}}')">💬 Reply</button>
                     </div>
                     <div class="nested-reply"></div>
-                    <div id="nr{{post_id}}_{{parent_id}}_{{id}}" style="display:none; margin-top:12px;">
+                    <div id="nr{{post_id}}_{{id}}" style="display:none; margin-top:12px;">
                         <form onsubmit="submitNestedReply(event, {{post_id}}, {{id}})">
                             <input name="name" placeholder="Your name" required>
                             <textarea name="reply" rows="3" placeholder="Write a reply..." required></textarea>
@@ -632,7 +623,7 @@ def nested_reply(post_id, parent_reply_id):
                         </form>
                     </div>
                 </div>
-                """, post_id=post_id, parent_id=parent_reply_id, id=new_reply["id"], name=new_reply["name"], text=new_reply["text"])
+                """, post_id=post_id, id=new_reply["id"], name=new_reply["name"], text=new_reply["text"])
 
                 resp = make_response(jsonify({"html": html}))
                 resp.set_cookie(f"reply_author_{new_reply['id']}", new_reply["name"], max_age=60*60*24*365*10)
@@ -870,7 +861,6 @@ def edit(post_id):
                 filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 file.save(filepath)
                 post["image"] = f"/static/uploads/{filename}"
-            # If no new image, keep old one
 
         save()
         resp = make_response(redirect("/"))
@@ -930,11 +920,9 @@ def delete(post_id):
 @app.route("/delete-comment/<int:post_id>/<int:comment_id>", methods=["POST"])
 def delete_comment(post_id, comment_id):
     if not is_admin():
-        # Try to match name from cookie or current session
         author_cookie = request.cookies.get(f"comment_author_{comment_id}")
         if not author_cookie:
             return "Unauthorized", 403
-        # Find the comment to check name
         found = False
         for p in posts:
             if p["id"] == post_id:
@@ -960,12 +948,11 @@ def delete_reply(post_id, reply_id):
     def remove_reply(replies):
         for i, r in enumerate(replies):
             if r["id"] == reply_id:
-                # Allow if admin OR the person who wrote it (name matches cookie)
                 if is_admin() or (author_cookie and r["name"] == author_cookie):
                     del replies[i]
                     save()
                     return True
-                return False  # Unauthorized
+                return False
             if r.get("replies"):
                 if remove_reply(r["replies"]):
                     return True
@@ -991,7 +978,6 @@ def share(post_id):
 def admin_logout():
     resp = make_response(redirect("/"))
     resp.set_cookie("admin_key", "", expires=0)
-    # Force browser to reload fresh (no cache)
     resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     resp.headers["Pragma"] = "no-cache"
     resp.headers["Expires"] = "0"
@@ -1000,12 +986,3 @@ def admin_logout():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-
-
-
-
-
-
-
-
-
