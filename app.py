@@ -426,7 +426,7 @@ def home():
                 const name = formData.get('name');
                 const resp = await fetch("/comment/" + postId, { method: "POST", body: formData });
                 const data = await resp.json();
-                document.getElementById("comments-list-" + postId).insertAdjacentHTML('afterbegin', data.html);
+                document.getElementById("comments-list-" + postId).insertAdjacentHTML('beforeend', data.html);
                 form.reset();
                 updateCommentCounts(postId);
                 // Remember author for delete permission
@@ -456,8 +456,7 @@ def home():
                     commentDiv.insertBefore(repliesContainer, replyFormDiv);
                 }
                 
-                // Add the new reply at the top (newest first)
-                repliesContainer.insertAdjacentHTML('afterbegin', data.html);
+                repliesContainer.insertAdjacentHTML('beforeend', data.html);
                 
                 // Clear the form
                 form.reset();
@@ -484,8 +483,7 @@ def home():
                     parent.appendChild(nested);
                 }
                 
-                // Add the new reply at the top
-                nested.insertAdjacentHTML('afterbegin', data.html);
+                nested.insertAdjacentHTML('beforeend', data.html);
                 
                 // Clear the name and text fields
                 form.reset();
@@ -1003,6 +1001,7 @@ def admin_logout():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
 
