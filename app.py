@@ -229,9 +229,9 @@ def home():
         {% for p in posts[::-1] %}
         <div class="post" id="post{{p.id}}">
             {% set current_author = request.cookies.get('author_' + p.id|string) or p.author %}
-{% if is_admin() or current_author == p.author %}
-    <a href="/edit/{{p.id}}"><button class="edit-btn">Edit</button></a>
-    
+<a href="/edit/{{p.id}}"><button class="edit-btn">Edit</button></a>
+
+{% if is_admin() %}
     <form method="post" action="/delete/{{p.id}}" onsubmit="return confirm('Delete this post forever?');" style="display:inline; margin-left:15px;">
         <button type="submit" class="action-btn delete-btn" style="padding:8px 14px; font-size:13px; background:#990000;">Delete Post</button>
     </form>
@@ -1004,6 +1004,7 @@ def admin_logout():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
 
