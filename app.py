@@ -436,24 +436,47 @@ def home():
                 }
             }
 
-            async function submitReply(event, postId, commentId) {
+           async function submitReply(event, postId, commentId) {
                 event.preventDefault();
                 const form = event.target;
                 const formData = new FormData(form);
+                
                 const resp = await fetch("/reply/" + postId + "/" + commentId, { method: "POST", body: formData });
                 const data = await resp.json();
-                const container = document.querySelector("#comment-" + postId + "-" + commentId + " .replies-container");
-                container.insertAdjacentHTML('afterbegin', data.html);
+                
+                // Find the replies container inside this specific comment
+                const commentDiv = document.getElementById("comment-" + postId + "-" + commentId);
+                let repliesContainer = commentDiv.querySelector(".replies-container");
+                
+                // If it doesn't exist yet, create it
+                if (!repliesContainer) {
+                    repliesContainer = document.createElement("div");
+                    repliesContainer.className = "replies-container";
+                    // Insert it before the reply form
+                    const replyFormDiv = commentDiv.querySelector("div[id^='r" + postId + "_" + commentId + "']");
+                    commentDiv.insertBefore(repliesContainer, replyFormDiv);
+                }
+                
+                // Add the new reply at the top (newest first)
+                repliesContainer.insertAdjacentHTML('afterbegin', data.html);
+                
+                // Clear the form
                 form.reset();
+                
+                // Hide the reply box after sending
+                form.parentElement.style.display = 'none';
+                
+                // Update total comment count (likes + comments + replies)
                 updateCommentCounts(postId);
             }
-
             async function submitNestedReply(event, postId, parentReplyId) {
                 event.preventDefault();
                 const form = event.target;
                 const formData = new FormData(form);
+                
                 const resp = await fetch("/nested-reply/" + postId + "/" + parentReplyId, { method: "POST", body: formData });
                 const data = await resp.json();
+                
                 const parent = document.getElementById("reply-" + postId + "-" + parentReplyId);
                 let nested = parent.querySelector(".nested-reply");
                 if (!nested) {
@@ -461,8 +484,17 @@ def home():
                     nested.className = "nested-reply";
                     parent.appendChild(nested);
                 }
+                
+                // Add the new reply at the top
                 nested.insertAdjacentHTML('afterbegin', data.html);
+                
+                // Clear the name and text fields
                 form.reset();
+                
+                // BONUS: Hide the reply form after sending
+                form.parentElement.style.display = 'none';
+                
+                // Update the comment count badge
                 updateCommentCounts(postId);
             }
 
@@ -965,10 +997,15 @@ def share(post_id):
 @app.route("/admin-logout")
 def admin_logout():
     resp = make_response(redirect("/"))
-    resp.set_cookie("admin_key", "", expires=0)  # Delete the admin cookie
+    resp.set_cookie("admin_key", "", expires=0)
+    # Force browser to reload fresh (no cache)
+    resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    resp.headers["Pragma"] = "no-cache"
+    resp.headers["Expires"] = "0"
     return resp
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
