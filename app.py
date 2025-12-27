@@ -720,7 +720,7 @@ def reply(post_id, comment_id):
                         "replies": []
                     }
                     next_reply_id += 1
-                    c.setdefault("replies", []).append(new_reply)  # Note: append, not insert(0)
+                    c.setdefault("replies", []).append(new_reply)
                     save()
 
                     html = render_template_string("""
@@ -743,11 +743,9 @@ def reply(post_id, comment_id):
                             <button onclick="toggleReply('nr{{post_id}}_{{new_id}}')">💬 Reply</button>
                         </div>
 
-                        {% if new_reply.replies %}
                         <div class="nested-reply">
-                            {{ render_replies(new_reply.replies, post_id, new_id) }}
+                            <!-- Future nested replies will go here -->
                         </div>
-                        {% endif %}
 
                         <div id="nr{{post_id}}_{{new_id}}" style="display:none; margin-top:12px;">
                             <form onsubmit="submitNestedReply(event, {{post_id}}, {{new_id}})">
@@ -757,8 +755,7 @@ def reply(post_id, comment_id):
                             </form>
                         </div>
                     </div>
-                    """, post_id=post_id, new_id=new_reply["id"], name=new_reply["name"], text=new_reply["text"],
-                         new_reply=new_reply, render_replies=render_replies, is_admin=is_admin)
+                    """, post_id=post_id, new_id=new_reply["id"], name=new_reply["name"], text=new_reply["text"])
 
                     resp = make_response(jsonify({"html": html}))
                     resp.set_cookie(f"reply_author_{new_reply['id']}", new_reply["name"], max_age=60*60*24*365*10)
@@ -1008,6 +1005,7 @@ def admin_logout():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
 
