@@ -435,38 +435,38 @@ def home():
                 }
             }
 
-           async function submitReply(event, postId, commentId) {
-                event.preventDefault();
-                const form = event.target;
-                const formData = new FormData(form);
-                
-                const resp = await fetch("/reply/" + postId + "/" + commentId, { method: "POST", body: formData });
-                const data = await resp.json();
-                
-                // Find the replies container inside this specific comment
-                const commentDiv = document.getElementById("comment-" + postId + "-" + commentId);
-                let repliesContainer = commentDiv.querySelector(".replies-container");
-                
-                // If it doesn't exist yet, create it
-                if (!repliesContainer) {
-                    repliesContainer = document.createElement("div");
-                    repliesContainer.className = "replies-container";
-                    // Insert it before the reply form
-                    const replyFormDiv = commentDiv.querySelector("div[id^='r" + postId + "_" + commentId + "']");
-                    commentDiv.insertBefore(repliesContainer, replyFormDiv);
-                }
-                
-                repliesContainer.insertAdjacentHTML('beforeend', data.html);
-                
-                // Clear the form
-                form.reset();
-                
-                // Hide the reply box after sending
-                form.parentElement.style.display = 'none';
-                
-                // Update total comment count (likes + comments + replies)
-                updateCommentCounts(postId);
-            }
+          async function submitReply(event, postId, commentId) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    
+    const resp = await fetch("/reply/" + postId + "/" + commentId, { method: "POST", body: formData });
+    const data = await resp.json();
+    
+    // Find the replies container inside this specific comment
+    const commentDiv = document.getElementById("comment-" + postId + "-" + commentId);
+    let repliesContainer = commentDiv.querySelector(".replies-container");
+    
+    // If it doesn't exist yet, create it
+    if (!repliesContainer) {
+        repliesContainer = document.createElement("div");
+        repliesContainer.className = "replies-container";
+        // Insert it before the reply form
+        const replyFormDiv = commentDiv.querySelector("div[id^='r" + postId + "_" + commentId + "']");
+        commentDiv.insertBefore(repliesContainer, replyFormDiv);
+    }
+    
+    repliesContainer.insertAdjacentHTML('beforeend', data.html);
+    
+    // Clear the form
+    form.reset();
+    
+    // Hide the reply box after sending
+    form.parentElement.style.display = 'none';
+    
+    // Update total comment count
+    updateCommentCounts(postId);
+}
             async function submitNestedReply(event, postId, parentReplyId) {
                 event.preventDefault();
                 const form = event.target;
@@ -742,11 +742,7 @@ def reply(post_id, comment_id):
                             <button onclick="likeReply(event, {{post_id}}, {{new_id}})">👍 <span id="reply-likes-{{post_id}}-{{new_id}}">0</span></button>
                             <button onclick="toggleReply('nr{{post_id}}_{{new_id}}')">💬 Reply</button>
                         </div>
-
-                        <div class="nested-reply">
-                            <!-- Future nested replies will go here -->
-                        </div>
-
+                        <div class="nested-reply"></div>
                         <div id="nr{{post_id}}_{{new_id}}" style="display:none; margin-top:12px;">
                             <form onsubmit="submitNestedReply(event, {{post_id}}, {{new_id}})">
                                 <input name="name" placeholder="Your name" required>
@@ -761,7 +757,6 @@ def reply(post_id, comment_id):
                     resp.set_cookie(f"reply_author_{new_reply['id']}", new_reply["name"], max_age=60*60*24*365*10)
                     return resp
     return jsonify({"html": ""})
-    
 @app.route("/new", methods=["GET", "POST"])
 def new():
     if request.method == "POST":
@@ -1005,6 +1000,7 @@ def admin_logout():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
 
