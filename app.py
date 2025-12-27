@@ -604,7 +604,7 @@ def nested_reply(post_id, parent_reply_id):
                     "replies": []
                 }
                 next_reply_id += 1
-                r.setdefault("replies", []).insert(0, new_reply)
+                r.setdefault("replies", []).append (new_reply)
                 save()
 
                 html = render_template_string("""
@@ -723,7 +723,7 @@ def reply(post_id, comment_id):
                         "replies": []
                     }
                     next_reply_id += 1
-                    c.setdefault("replies", []).insert(0, new_reply)
+                    c.setdefault("replies", []).append (new_reply)
                     save()
 
                     html = render_template_string("""
@@ -920,15 +920,12 @@ def edit(post_id):
 
 @app.route("/delete/<int:post_id>", methods=["POST"])
 def delete(post_id):
+    if not is_admin():
+        return "Unauthorized", 403
     global posts
     post = next((p for p in posts if p["id"] == post_id), None)
     if not post:
         return redirect("/")
-
-    current_author = request.cookies.get(f"author_{post_id}") or post["author"]
-    if not (is_admin() or current_author == post["author"]):
-        return "Unauthorized", 403
-
     posts = [p for p in posts if p["id"] != post_id]
     save()
     return redirect("/")
@@ -1007,5 +1004,6 @@ def admin_logout():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
