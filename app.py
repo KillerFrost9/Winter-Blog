@@ -580,9 +580,10 @@ def like_reply(post_id, reply_id):
 
 @app.route("/nested-reply/<int:post_id>/<int:parent_reply_id>", methods=["POST"])
 def nested_reply(post_id, parent_reply_id):
-    global next_reply_id
+    global next_reply_id  # Moved to the top of the function
 
     def find_and_add(replies):
+        global next_reply_id  # Now safe to use next_reply_id below
         for r in replies:
             if r["id"] == parent_reply_id:
                 new_reply = {
@@ -592,7 +593,6 @@ def nested_reply(post_id, parent_reply_id):
                     "likes": 0,
                     "replies": []
                 }
-                global next_reply_id
                 next_reply_id += 1
                 r.setdefault("replies", []).append(new_reply)
                 save()
@@ -645,8 +645,6 @@ def nested_reply(post_id, parent_reply_id):
                     return result
 
     return jsonify({"html": ""})
-
-
 @app.route("/comment-count/<int:post_id>")
 def comment_count(post_id):
     for p in posts:
@@ -989,3 +987,4 @@ def admin_logout():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
