@@ -469,16 +469,17 @@ def home():
                 const resp = await fetch("/nested-reply/" + postId + "/" + parentReplyId, { method: "POST", body: formData });
                 const data = await resp.json();
                 
-                const parent = document.getElementById("reply-" + postId + "-" + parentReplyId);
-                let nested = parent.querySelector(".nested-reply");
-                if (!nested) {
-                    nested = document.createElement("div");
-                    nested.className = "nested-reply";
-                    const replyBtnLine = parent.querySelector("div[style*='display:flex; gap:10px']");
-                    parent.insertBefore(nested, replyBtnLine.nextSibling);
+                const parentReplyDiv = document.getElementById("reply-" + postId + "-" + parentReplyId);
+                let nestedContainer = parentReplyDiv.querySelector(".nested-reply");
+                
+                if (!nestedContainer) {
+                    nestedContainer = document.createElement("div");
+                    nestedContainer.className = "nested-reply";
+                    const actionButtons = parentReplyDiv.querySelector("div[style*='display:flex; gap:10px']");
+                    parentReplyDiv.insertBefore(nestedContainer, actionButtons.nextSibling);
                 }
                 
-                nested.insertAdjacentHTML('beforeend', data.html);
+                nestedContainer.insertAdjacentHTML('beforeend', data.html);
                 
                 form.reset();
                 form.parentElement.style.display = 'none';
@@ -591,12 +592,13 @@ def nested_reply(post_id, parent_reply_id):
                     "likes": 0,
                     "replies": []
                 }
+                global next_reply_id
                 next_reply_id += 1
                 r.setdefault("replies", []).append(new_reply)
                 save()
 
                 html = render_template_string("""
-                <div class="reply-item" id="reply-{{post_id}}-{{id}}">
+                <div class="reply-item" id="reply-{{post_id}}-{{new_id}}">
                     <div style="display:flex; justify-content:space-between; align-items:start;">
                         <div>
                             <strong>{{name}}:</strong>
@@ -604,26 +606,26 @@ def nested_reply(post_id, parent_reply_id):
                                 {{text|replace('\n','<br>')|safe}}
                             </div>
                         </div>
-                        {% if is_admin() or request.cookies.get('reply_author_' + id|string) == name %}
-                        <form method="post" action="/delete-reply/{{post_id}}/{{id}}" onsubmit="return confirm('Delete this reply?');">
+                        {% if is_admin() or request.cookies.get('reply_author_' + new_id|string) == name %}
+                        <form method="post" action="/delete-reply/{{post_id}}/{{new_id}}" onsubmit="return confirm('Delete this reply?');">
                             <button type="submit" class="delete-btn-small">🗑️ Delete</button>
                         </form>
                         {% endif %}
                     </div>
                     <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-                        <button onclick="likeReply(event, {{post_id}}, {{id}})">👍 <span id="reply-likes-{{post_id}}-{{id}}">0</span></button>
-                        <button onclick="toggleReply('nr{{post_id}}_{{id}}')">💬 Reply</button>
+                        <button onclick="likeReply(event, {{post_id}}, {{new_id}})">👍 <span id="reply-likes-{{post_id}}-{{new_id}}">0</span></button>
+                        <button onclick="toggleReply('nr{{post_id}}_{{new_id}}')">💬 Reply</button>
                     </div>
                     <div class="nested-reply"></div>
-                    <div id="nr{{post_id}}_{{id}}" style="display:none; margin-top:12px;">
-                        <form onsubmit="submitNestedReply(event, {{post_id}}, {{id}})">
+                    <div id="nr{{post_id}}_{{new_id}}" style="display:none; margin-top:12px;">
+                        <form onsubmit="submitNestedReply(event, {{post_id}}, {{new_id}})">
                             <input name="name" placeholder="Your name" required>
                             <textarea name="reply" rows="3" placeholder="Write a reply..." required></textarea>
                             <button type="submit">Reply</button>
                         </form>
                     </div>
                 </div>
-                """, post_id=post_id, id=new_reply["id"], name=new_reply["name"], text=new_reply["text"])
+                """, post_id=post_id, new_id=new_reply["id"], name=new_reply["name"], text=new_reply["text"], is_admin=is_admin)
 
                 resp = make_response(jsonify({"html": html}))
                 resp.set_cookie(f"reply_author_{new_reply['id']}", new_reply["name"], max_age=60*60*24*365*10)
@@ -742,12 +744,13 @@ def reply(post_id, comment_id):
                             </form>
                         </div>
                     </div>
-                    """, post_id=post_id, new_id=new_reply["id"], name=new_reply["name"], text=new_reply["text"])
+                    """, post_id=post_id, new_id=new_reply["id"], name=new_reply["name"], text=new_reply["text"], is_admin=is_admin)
 
                     resp = make_response(jsonify({"html": html}))
                     resp.set_cookie(f"reply_author_{new_reply['id']}", new_reply["name"], max_age=60*60*24*365*10)
                     return resp
     return jsonify({"html": ""})
+
 @app.route("/new", methods=["GET", "POST"])
 def new():
     if request.method == "POST":
