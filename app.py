@@ -255,9 +255,9 @@ def home():
                 <button class="action-btn comment-btn" onclick="toggleComment('c{{p.id}}')">
                     💬 Comment <span id="total-comments-{{p.id}}">{{ count_total_comments(p) }}</span>
                 </button>
-                <button class="action-btn share-btn" onclick="sharePost({{p.id}}, {{ p.title|tojson }})">
-                    📤 Share {{p.shares}}
-                </button>
+               <button class="action-btn share-btn" onclick="sharePost({{p.id}}, {{ p.title|tojson }})">
+    📤 Share <span id="post-shares-{{p.id}}">{{p.shares}}</span>
+</button>
 
             </div>
 
@@ -487,16 +487,25 @@ def home():
                 updateCommentCounts(postId);
             }
 
-            function sharePost(id, title) {
-                const confirmCopy = confirm("Do you want to copy this post to clipboard?");
-                if (!confirmCopy) return;
-                const url = window.location.origin + "/#post" + id;
-                const text = `"${title}" — Check this amazing post on FrostBlog!\\n${url}`;
-                navigator.clipboard.writeText(text).then(() => {
-                    alert("Post copied to clipboard! 🎉");
-                    fetch("/share/" + id, { method: "POST" });
-                });
-            }
+            async function sharePost(id, title) {
+    if (!confirm("Do you want to copy this post to clipboard?")) return;
+
+    const url = window.location.origin + "/#post" + id;
+    const text = `"${title}" — Check this amazing post on WinterBlog!\n${url}`;
+
+    try {
+        await navigator.clipboard.writeText(text);
+        alert("Post copied to clipboard! 🎉");
+
+        await fetch("/share/" + id, { method: "POST" });
+        const span = document.getElementById("post-shares-" + id);
+        if (span) {
+            span.textContent = parseInt(span.textContent) + 1;
+        }
+    } catch (err) {
+        alert("Something went wrong 😢");
+    }
+}
         </script>
     </body>
     </html>
@@ -987,4 +996,5 @@ def admin_logout():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
