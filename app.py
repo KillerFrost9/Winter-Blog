@@ -204,15 +204,6 @@ def home():
             button.send {background:#00ffff; color:black; padding:15px 40px; border:none; border-radius:12px;}
             .reply-item {background:#222; padding:14px; border-radius:10px; margin:15px 0 0 40px; border-left:4px solid #00aaff; box-shadow:0 0 10px rgba(0,170,255,0.2);}
             .nested-reply {margin-left: 50px; border-left:2px dashed #00aaff; padding-left:15px;}
-            .like-btn.liked {
-        background: #c0392b !important;  /* Dark red */
-        color: white;
-    }
-    .like-btn.liked .heart-icon {
-        animation: none;
-        filter: drop-shadow(0 0 12px #c0392b);
-        color: #ff4444;
-    }
         </style>
         """ + heart_style + """
     </head>
@@ -260,7 +251,7 @@ def home():
                 <button class="action-btn like-btn {% if request.cookies.get('liked_post_' + p.id|string) %}liked{% endif %}" 
         onclick="likePost(event, {{p.id}})"
         id="like-btn-{{p.id}}">
-    <span class="heart-icon">{% if request.cookies.get('liked_post_' + p.id|string) %}💖{% else %}❤️{% endif %}</span> 
+    <span class="heart-icon">{% if request.cookies.get('liked_post_' + p.id|string) %}💜{% else %}❤️{% endif %}</span> 
     Like <span id="post-likes-{{p.id}}">{{p.likes}}</span>
 </button>
                 <button class="action-btn comment-btn" onclick="toggleComment('c{{p.id}}')">
@@ -1040,6 +1031,7 @@ def admin_logout():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
 
