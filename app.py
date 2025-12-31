@@ -255,7 +255,7 @@ def home():
                 <button class="action-btn comment-btn" onclick="toggleComment('c{{p.id}}')">
                     💬 Comment <span id="total-comments-{{p.id}}">{{ count_total_comments(p) }}</span>
                 </button>
-               <button class="action-btn share-btn" onclick="sharePost({{p.id}}, {{ p.title|tojson }})">
+              <button class="action-btn share-btn" onclick="sharePost({{p.id}})">
     📤 Share <span id="post-shares-{{p.id}}">{{p.shares}}</span>
 </button>
 
@@ -487,23 +487,35 @@ def home():
                 updateCommentCounts(postId);
             }
 
-            async function sharePost(id, title) {
+            async function sharePost(postId) {
+    // Find the post element
+    const postElement = document.getElementById("post" + postId);
+    if (!postElement) return;
+
+    // Get the title from the h2
+    const titleElement = postElement.querySelector(".post-title");
+    const title = titleElement ? titleElement.textContent.trim() : "Check this post";
+
     if (!confirm("Do you want to copy this post to clipboard?")) return;
 
-    const url = window.location.origin + "/#post" + id;
-    const text = `"${title}" — Check this amazing post on WinterBlog!\n${url}`;
+    const url = window.location.origin + "/#post" + postId;
+    const text = `"${title}" — Check this amazing post on WinterBlog!\n\n${url}`;
 
     try {
         await navigator.clipboard.writeText(text);
         alert("Post copied to clipboard! 🎉");
 
-        await fetch("/share/" + id, { method: "POST" });
-        const span = document.getElementById("post-shares-" + id);
+        // Increment share count on server
+        await fetch("/share/" + postId, { method: "POST" });
+
+        // Update UI
+        const span = document.getElementById("post-shares-" + postId);
         if (span) {
             span.textContent = parseInt(span.textContent) + 1;
         }
     } catch (err) {
-        alert("Something went wrong 😢");
+        console.error(err);
+        alert("Failed to copy to clipboard. Your browser may not support it or page is not served over HTTPS.");
     }
 }
         </script>
@@ -996,6 +1008,7 @@ def admin_logout():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
 
