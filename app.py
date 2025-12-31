@@ -251,7 +251,7 @@ def home():
                 <button class="action-btn like-btn {% if request.cookies.get('liked_post_' + p.id|string) %}liked{% endif %}" 
         onclick="likePost(event, {{p.id}})"
         id="like-btn-{{p.id}}">
-    <span class="heart-icon">{% if request.cookies.get('liked_post_' + p.id|string) %}💖{% else %}❤️{% endif %}</span> 
+    <span class="heart-icon">{% if request.cookies.get('liked_post_' + p.id|string) %}💜{% else %}❤️{% endif %}</span> 
     Like <span id="post-likes-{{p.id}}">{{p.likes}}</span>
 </button>
                 <button class="action-btn comment-btn" onclick="toggleComment('c{{p.id}}')">
@@ -1031,6 +1031,7 @@ def admin_logout():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
 
