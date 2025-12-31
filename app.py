@@ -204,6 +204,15 @@ def home():
             button.send {background:#00ffff; color:black; padding:15px 40px; border:none; border-radius:12px;}
             .reply-item {background:#222; padding:14px; border-radius:10px; margin:15px 0 0 40px; border-left:4px solid #00aaff; box-shadow:0 0 10px rgba(0,170,255,0.2);}
             .nested-reply {margin-left: 50px; border-left:2px dashed #00aaff; padding-left:15px;}
+            .like-btn.liked {
+        background: #c0392b !important;  /* Dark red */
+        color: white;
+    }
+    .like-btn.liked .heart-icon {
+        animation: none;
+        filter: drop-shadow(0 0 12px #c0392b);
+        color: #ff4444;
+    }
         </style>
         """ + heart_style + """
     </head>
@@ -248,10 +257,12 @@ def home():
             <div class="post-content">{{p.content|replace('\n','<br>')|safe}}</div>
 
             <div class="actions-bottom">
-                <button class="action-btn like-btn" onclick="likePost(event, {{p.id}})">
-                    ❤️ Like <span id="post-likes-{{p.id}}">{{p.likes}}</span>
-                </button>
-
+                <button class="action-btn like-btn {% if request.cookies.get('liked_post_' + p.id|string) %}liked{% endif %}" 
+        onclick="likePost(event, {{p.id}})"
+        id="like-btn-{{p.id}}">
+    <span class="heart-icon">{% if request.cookies.get('liked_post_' + p.id|string) %}💖{% else %}❤️{% endif %}</span> 
+    Like <span id="post-likes-{{p.id}}">{{p.likes}}</span>
+</button>
                 <button class="action-btn comment-btn" onclick="toggleComment('c{{p.id}}')">
                     💬 Comment <span id="total-comments-{{p.id}}">{{ count_total_comments(p) }}</span>
                 </button>
@@ -370,18 +381,39 @@ def home():
                 el.style.display = el.style.display === "block" ? "none" : "block";
             }
 
-            async function likePost(event, postId) {
-                const btn = event.currentTarget;
-                const rect = btn.getBoundingClientRect();
-                const x = rect.left + rect.width / 2;
-                const y = rect.top + rect.height / 2;
-                createHeart(x, y);
+           async function likePost(event, postId) {
+    const btn = event.currentTarget;
+    const rect = btn.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
 
-                const resp = await fetch("/like/" + postId, { method: "POST" });
-                const data = await resp.json();
-                document.getElementById("post-likes-" + postId).textContent = data.likes;
-            }
+    // Only show floating heart animation when actually LIKING (not unliking)
+    if (!btn.classList.contains('liked')) {
+        createHeart(x, y);
+    }
 
+    try {
+        const resp = await fetch("/like/" + postId, { method: "POST" });
+        const data = await resp.json();
+
+        const countSpan = document.getElementById("post-likes-" + postId);
+        if (countSpan) {
+            countSpan.textContent = data.likes;
+        }
+
+        // Update button appearance based on new like status
+        if (document.cookie.split(';').some((item) => item.trim().startsWith('liked_post_' + postId + '='))) {
+            btn.classList.add('liked');
+            btn.querySelector('.heart-icon').textContent = '💖';
+        } else {
+            btn.classList.remove('liked');
+            btn.querySelector('.heart-icon').textContent = '❤️';
+        }
+    } catch (err) {
+        alert("Failed to update like.");
+        console.error(err);
+    }
+}
             async function likeComment(event, postId, commentId) {
                 const btn = event.currentTarget;
                 const rect = btn.getBoundingClientRect();
@@ -1008,6 +1040,7 @@ def admin_logout():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
 
