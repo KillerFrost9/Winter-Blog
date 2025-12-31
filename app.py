@@ -395,7 +395,7 @@ def home():
         // Update button appearance based on new like status
         if (document.cookie.split(';').some((item) => item.trim().startsWith('liked_post_' + postId + '='))) {
             btn.classList.add('liked');
-            btn.querySelector('.heart-icon').textContent = '💖';
+            btn.querySelector('.heart-icon').textContent = '💜';
         } else {
             btn.classList.remove('liked');
             btn.querySelector('.heart-icon').textContent = '❤️';
@@ -1031,6 +1031,7 @@ def admin_logout():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
 
